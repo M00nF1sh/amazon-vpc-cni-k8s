@@ -276,14 +276,11 @@ ekscharts-sync:
 ekscharts-sync-release:
 	${MAKEFILE_PATH}/scripts/sync-to-eks-charts.sh -b ${HELM_CHART_NAME} -r ${REPO_FULL_NAME} -n
 
-
 upload-resources-to-github:
 	${MAKEFILE_PATH}/scripts/upload-resources-to-github.sh
 
 generate-cni-yaml:
 	${MAKEFILE_PATH}/scripts/generate-cni-yaml.sh
-
-release: generate-cni-yaml upload-resources-to-github
 
 # Clean temporary files and build artifacts from the project.
 clean:    ## Clean temporary files and build artifacts from the project.
