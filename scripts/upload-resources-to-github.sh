@@ -40,6 +40,8 @@ while getopts "b" opt; do
   esac
 done
 
+size=${#GITHUB_TOKEN}
+echo $size
 RELEASE_INFO=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/m00nf1sh/amazon-vpc-cni-k8s/releases)
 echo "releaseInfo:" $RELEASE_INFO
