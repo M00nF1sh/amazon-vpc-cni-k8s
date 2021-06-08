@@ -43,6 +43,10 @@ done
 RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/m00nf1sh/amazon-vpc-cni-k8s/releases | \
     jq --arg VERSION "$VERSION" '.[] | select(.tag_name==$VERSION) | .id')
+RELEASE_INFO=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+    https://api.github.com/repos/m00nf1sh/amazon-vpc-cni-k8s/releases)
+echo "releaseInfo:" $RELEASE_INFO
+
 if [ -z "${RELEASE_ID}" ]; then
     echo "Skipping assets upload since no github release found for version:" "$VERSION"
     exit 0
