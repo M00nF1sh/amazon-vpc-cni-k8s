@@ -1,29 +1,45 @@
-name: Manual test runner workflow
+# Repo owner must review the PR properly before trigger this workflow manually.
+name: Integration test for Pull Request
 
 on:
   workflow_dispatch:
     inputs:
       pull_request_number:
         description: "PR number we want to run tests on"
-        default: ""
         required: true
+        type: number
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  # Repo owner has triggered this run
-  integration-fork:
-    runs-on: ubuntu-latest
+  integration-forked-pr:
     if: github.event.inputs.pull_request_number != ''
+    runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS Credentials
+      - name: Checkout latest commit in the PR
+        uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.inputs.pull_request_number }}/merge"
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.18"
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::283511030707:role/github-oss-test
           role-duration-seconds: 1200
-          aws-region: us-east-2
-      - name: Copy files to the test website with the AWS CLI
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Run e2e tests
+        env:
+          DISABLE_PROMPT: true
+          ROLE_CREATE: false
+          ROLE_ARN: ${{ secrets.ROLE_ARN }}
+          MNG_ROLE_ARN: ${{ secrets.MNG_ROLE_ARN }}
+          RUN_CONFORMANCE: true
+          S3_BUCKET_CREATE: false
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: |
-          aws sts get-caller-identity
+          ./scripts/run-integration-tests.sh
