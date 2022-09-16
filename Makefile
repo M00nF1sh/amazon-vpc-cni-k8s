@@ -139,7 +139,18 @@ docker-func-test: docker     ## Run the built CNI container image to use in func
 	docker run $(DOCKER_RUN_FLAGS) \
 		"$(IMAGE_NAME)"
 
-multi-arch-cni-build-push:		## Build multi-arch VPC CNI container image.
+
+## Build multi-arch VPC CNI plugin container image. [This is supposed to be used in Github Actions]
+multi-arch-cni-build:					
+	docker buildx build $(DOCKER_BUILD_FLAGS) \
+    		-f scripts/dockerfiles/Dockerfile.release \
+    		--platform "$(MULTI_PLATFORM_BUILD_TARGETS)"\
+				--cache-from=type=gha \
+				--cache-to=type=gha,mode=max \
+    		.
+
+## Build and push multi-arch VPC CNI plugin container image.
+multi-arch-cni-build-push:		
 	docker buildx build $(DOCKER_BUILD_FLAGS) \
     		-f scripts/dockerfiles/Dockerfile.release \
     		--platform "$(MULTI_PLATFORM_BUILD_TARGETS)"\
@@ -147,7 +158,17 @@ multi-arch-cni-build-push:		## Build multi-arch VPC CNI container image.
     		--push \
     		.
 
-multi-arch-cni-init-build-push:     ## Build VPC CNI plugin Init container image.
+# Build multi-arch VPC CNI plugin Init container image. [This is supposed to be used in Github Actions]
+multi-arch-cni-init-build:
+	docker buildx build $(DOCKER_BUILD_FLAGS) \
+    		-f scripts/dockerfiles/Dockerfile.release \
+    		--platform "$(MULTI_PLATFORM_BUILD_TARGETS)"\
+				--cache-from=type=gha \
+				--cache-to=type=gha,mode=max \
+    		.
+
+## Build and push VPC CNI plugin Init container image.
+multi-arch-cni-init-build-push:     
 	docker buildx build $(DOCKER_BUILD_FLAGS) \
 		-f scripts/dockerfiles/Dockerfile.init \
 		--platform "$(MULTI_PLATFORM_BUILD_TARGETS)"\
