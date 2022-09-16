@@ -1,5 +1,5 @@
 # Repo owner must review the PR properly before trigger this workflow manually.
-name: Integration test for Pull Request
+name: Manual triggered tests for Pull Request
 
 on:
   workflow_dispatch:
@@ -7,14 +7,14 @@ on:
       pull_request_number:
         description: "PR number we want to run tests on"
         required: true
-        type: number
+        type: string
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  integration-forked-pr:
+  integration-test:
     if: github.event.inputs.pull_request_number != ''
     runs-on: ubuntu-latest
     steps:
@@ -30,14 +30,16 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: "1.18"
-      - name: Set up Go tools
+      - name: Set up tools
         run: |
           go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo@latest
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin/
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.OSS_TEST_ROLE_ARN }}
-          role-duration-seconds: 1200
+          role-duration-seconds: 7200
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Run e2e tests
         env:
