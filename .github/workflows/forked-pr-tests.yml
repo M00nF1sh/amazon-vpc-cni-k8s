@@ -1,0 +1,28 @@
+name: Manual test runner workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: "PR number we want to run tests on"
+        default: ""
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Repo owner has triggered this run
+  integration-fork:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.pull_request_number != ''
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::283511030707:role/github-oss-test
+          role-duration-seconds: 1200
+          aws-region: us-east-2
+      - name: Copy files to the test website with the AWS CLI
+        run: |
+          aws sts get-caller-identity
