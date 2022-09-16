@@ -139,6 +139,13 @@ docker-func-test: docker     ## Run the built CNI container image to use in func
 	docker run $(DOCKER_RUN_FLAGS) \
 		"$(IMAGE_NAME)"
 
+
+multi-arch-cni-build:
+	docker buildx build $(DOCKER_BUILD_FLAGS) \
+    		-f scripts/dockerfiles/Dockerfile.release \
+    		--platform "$(MULTI_PLATFORM_BUILD_TARGETS)"\
+    		.
+
 multi-arch-cni-build-push:		## Build multi-arch VPC CNI container image.
 	docker buildx build $(DOCKER_BUILD_FLAGS) \
     		-f scripts/dockerfiles/Dockerfile.release \
